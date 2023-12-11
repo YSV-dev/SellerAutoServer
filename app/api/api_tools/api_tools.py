@@ -19,5 +19,7 @@ class API_Tools:
     @staticmethod
     def get_api_path(path: str) -> str:
         path_array: list = path.split('.')
-        path_array.remove('app')
+        path_array.pop(0)#app
+        path_array.pop(0)#api
+        path_array.pop(0)#version
         return '/'.join(path_array)

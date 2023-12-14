@@ -1,5 +1,5 @@
 from flask import Flask
-from .extensions import api_manager, db, migrate, jwt, ma
+from .extensions import api_manager, db, migrate, jwt, ma, blueprint, blueprint2  # , api_manager2
 from app.api import *
 
 
@@ -16,6 +16,11 @@ def create_app():
     # flask db migrate
     # flask db upgrade
     migrate.init_app(app, db)
-    api_manager.init_app(app)
+
+    app.register_blueprint(blueprint, url_prefix='/v1')
+    app.register_blueprint(blueprint2, url_prefix='/v2')
+    #api_manager.init_app(app)
+
+    #api_manager2.init_app(app)
 
     return app

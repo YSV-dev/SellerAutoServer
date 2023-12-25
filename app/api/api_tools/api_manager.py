@@ -22,8 +22,11 @@ from flask_restx import Api, Namespace
     
     Поля:
         _api_list: dict[str, _ApiContainer] = {}
+        api: Api
         
         _api_list - лист контейнеров с данными API, который заполняется при выполнении метода add_api_region
+        api - глобальный API, нужен для работы с декораторами вроде: @api_manager.api.doc().
+              Не имеет своей страницы swagger.
         
     Методы:
         init_app - метод инициализации структуры API адресов, запускается в методе create_app стартового файла
@@ -50,17 +53,33 @@ from flask_restx import Api, Namespace
         add_api_region - метод добавления API регионов с конкретной структурой
             
         Параметры:
-        region: str
-        version: int
-        namespaces: list[Namespace]
-        for_desc: str = ''
-        **kwargs
+            region: str
+            version: int
+            namespaces: list[Namespace]
+            for_desc: str = ''
+            **kwargs
+            
+            region - раздел API
+            version - версия API
+            namespaces - подраздел API
+            for_desc - описание раздела
+            
+        Вывод:
+            тип: Api
+            
+        get_api_region - метод получения какого-то конкретного раздела API
         
-        region
-        
+        Параметры:
+            version: int
+            region: str
+            
+            version - версия API
+            region - раздел
+            
+        Вывод:
+            тип: Api
         
 """
-#TODO: Дописать документацию
 
 class _ApiContainer:
     def __init__(self, api: Api, namespaces: list[Namespace]):
@@ -71,6 +90,7 @@ class _ApiContainer:
 class ApiManager:
     def __init__(self):
         self.app = None
+        self.api = Api(title='Global API')
         self._api_list: dict[str, _ApiContainer] = {}
 
     def init_app(self, app: Flask):
@@ -78,12 +98,13 @@ class ApiManager:
 
         for api_container in self._api_list.values():
             api = api_container.api
+
             for ns in api_container.namespaces:
                 api.add_namespace(ns)
 
             blueprint: Blueprint = api.blueprint
 
-            url_prefix = blueprint.url_prefix
+            url_prefix = ''  # blueprint.name
 
             self.app.register_blueprint(blueprint, url_prefix=url_prefix)
 

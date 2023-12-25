@@ -4,7 +4,7 @@ from app.models.API.users import UserSchema
 from app.models.ORM import User
 
 
-class GetAllUsers(Resource):
+class Users(Resource):
     def get(self):
         users = User.query.all()
-        return UserSchema.dump(users, many=True), 200
+        return UserSchema().dump(users, many=True), 200

@@ -1,9 +1,8 @@
 from flask_restx import Resource
-
-from app import api_manager
+from app.api.api_tools import api
 
 
 class SignIn(Resource):
-    @api_manager.api.doc(description='Вход в учётную запись')
+    @api.doc(description='Вход в учётную запись')
     def post(self):
         return {}

@@ -26,6 +26,7 @@ def create_app():
     jwt.init_app(app)
     ma.init_app(app)
 
+
     # flask db migrate
     # flask db upgrade
     migrate.init_app(app, db)

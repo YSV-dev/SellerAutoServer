@@ -78,8 +78,11 @@ from flask_restx import Api, Namespace
             
         Вывод:
             тип: Api
+            
+        get_all_api - получить список всех API с ключами и регионами
         
 """
+
 
 class _ApiContainer:
     def __init__(self, api: Api, namespaces: list[Namespace]):
@@ -90,13 +93,13 @@ class _ApiContainer:
 class ApiManager:
     def __init__(self):
         self.app = None
-        self.api = Api(title='Global API')
-        self._api_list: dict[str, _ApiContainer] = {}
+
+        self._api_container_list: dict[str, _ApiContainer] = {}
 
     def init_app(self, app: Flask):
         self.app = app
 
-        for api_container in self._api_list.values():
+        for api_container in self._api_container_list.values():
             api = api_container.api
 
             for ns in api_container.namespaces:
@@ -104,7 +107,7 @@ class ApiManager:
 
             blueprint: Blueprint = api.blueprint
 
-            url_prefix = ''  # blueprint.name
+            url_prefix = blueprint.name
 
             self.app.register_blueprint(blueprint, url_prefix=url_prefix)
 
@@ -132,7 +135,7 @@ class ApiManager:
 
         url_prefix: str = self._create_url(version, region)
 
-        kwargs['doc'] = f'{url_prefix}/docs'
+        kwargs['doc'] = f'/docs'
 
         if not kwargs.get('description'):
             kwargs['description'] = f"API version: {formatted_version}\nRegion: {region}\nFor: {for_desc}"
@@ -142,8 +145,14 @@ class ApiManager:
 
         api_res = _ApiContainer(api, namespaces)
 
-        self._api_list[url_prefix] = api_res
+        self._api_container_list[url_prefix] = api_res
         return api
 
     def get_api_region(self, version: int, region: str) -> Api:
-        return self._api_list[self._create_url(version, region)].api
+        return self._api_container_list[self._create_url(version, region)].api
+
+    def get_all_api(self) -> dict:
+        result: dict[str, Api] = dict[str, Api]()
+        for api_c in self._api_container_list:
+            result[api_c] = self._api_container_list[api_c].api
+        return result

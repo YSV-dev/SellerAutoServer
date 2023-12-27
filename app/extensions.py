@@ -11,5 +11,3 @@ jwt = JWTManager()
 migrate = Migrate()
 ma = Marshmallow()
 
-#dev tools
-
